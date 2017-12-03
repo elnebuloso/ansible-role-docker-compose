@@ -1,0 +1,44 @@
+---
+- name: "check for installed docker-compose binary"
+  stat: path=/usr/local/bin/docker-compose
+  register: docker_compose_check_bin
+  changed_when: false
+
+- name: "check for installation"
+  set_fact: docker_compose_installed_version="no version installed"
+  changed_when: false
+
+- name: "check if docker-compose {{docker_compose_version}} is installed"
+  command: docker-compose --version
+  register: docker_compose_check_installed
+  when: docker_compose_check_bin.stat.exists == true
+  changed_when: false
+
+- name: "check docker-compose version"
+  set_fact: docker_compose_installed_version="{{docker_compose_check_installed.stdout}}"
+  when: docker_compose_check_installed.stdout is defined
+  changed_when: false
+
+- name: "check docker-compose version"
+  debug:
+    msg: "{{docker_compose_installed_version}}"
+
+- name: "check kernel (system) for correct docker-compose installation"
+  shell: echo $(uname -s)
+  register: docker_compose_uname_kernel_system
+  changed_when: false
+  when: 'docker_compose_version not in docker_compose_installed_version'
+
+- name: "check kernel (machine) for correct docker-compose installation"
+  shell: echo $(uname -m)
+  register: docker_compose_uname_kernel_machine
+  changed_when: false
+  when: 'docker_compose_version not in docker_compose_installed_version'
+
+- name: "install docker-compose"
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-{{docker_compose_uname_kernel_system.stdout}}-{{docker_compose_uname_kernel_machine.stdout}}"
+    dest: /usr/local/bin/docker-compose
+    mode: 0755
+    force: yes
+  when: 'docker_compose_version not in docker_compose_installed_version'
