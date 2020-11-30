@@ -1,6 +1,6 @@
 # Ansible Role - Docker Compose
 
-[![Build Status](https://travis-ci.org/elnebuloso/ansible-role-docker-compose.svg?branch=master)](https://travis-ci.org/elnebuloso/ansible-role-docker-compose)
+![abandoned](https://img.shields.io/badge/project-abandoned-red)
 
 ## Requirements
 
